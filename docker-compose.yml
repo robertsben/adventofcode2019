@@ -1,0 +1,5 @@
+version: '3.7'
+
+services:
+  day_1:
+    build: day_1
