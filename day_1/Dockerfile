@@ -1,7 +1,5 @@
 FROM python:3.8
 
-COPY input.txt .
-
-COPY solution.py .
+COPY src .
 
 CMD ["python", "solution.py"]
