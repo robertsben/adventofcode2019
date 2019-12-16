@@ -8,3 +8,5 @@ services:
     build: day_1
     command: ["python", "pt_2_solution.py"]
 
+  day_2:
+    build: day_2
