@@ -1,9 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
-int main() {
-    printf("Hello, world!\n");
 #define MAX_TRAVELLED 256000
 
 void read_instructions(char (*instruction_sets)[512][8]) {
