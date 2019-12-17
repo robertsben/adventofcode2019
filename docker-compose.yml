@@ -13,3 +13,6 @@ services:
 
   day_3:
     build: day_3
+
+  day_4:
+    build: day_4
