@@ -4,7 +4,9 @@
 
 int main() {
     printf("Hello, world!\n");
+#define MAX_TRAVELLED 512000
 
+void read_instructions(char (*instruction_sets)[512][8]) {
     FILE *input_file;
     char buff[255];
     char *instruction_p;
@@ -51,25 +53,109 @@ int main() {
     }
 }
 
+
+
+void record_path_travelled(char (*instructions)[8], int (*coordinates)[2]) {
+    char *instruction;
+    char operator;
+    int x = 0 , y = 0, distance = 0, movement = 0, points_visited = 0;
+
+    for (int j=0; j<512; j++) {
+        instruction = instructions[j];
+        operator = instruction[0];
+        if (operator != '\0') {
+            movement = strtol(&instruction[1], &instruction, 10);
+            for (int start = points_visited; points_visited<start+movement; points_visited++) {
+                switch (operator) {
+                    case 'R':
+                        x++;
+                        break;
+                    case 'L':
+                        x--;
+                        break;
+                    case 'U':
+                        y++;
+                        break;
+                    case 'D':
+                        y--;
+                        break;
+                }
+                coordinates[points_visited][0] = x;
+                coordinates[points_visited][1] = y;
+            }
+        } else {
+            printf("\n");
+            break;
+        }
+    }
+    coordinates[points_visited][0] = INT_MIN;
+    coordinates[points_visited][1] = INT_MIN;
+}
+
+
+void find_intersections(int (*coordinates)[MAX_TRAVELLED][2], int (*intersections)[2]) {
+    int found = 0;
+    int x_1, x_2, y_1, y_2;
+    for (int i=0; i<MAX_TRAVELLED; i++) {
+        x_1 = coordinates[0][i][0];
+        y_1 = coordinates[0][i][1];
+        if ((x_1 == INT_MIN) && (y_1 == INT_MIN)) {
+            break;
+        }
+        for (int j=0; j<MAX_TRAVELLED; j++) {
+            x_2 = coordinates[1][j][0];
+            y_2 = coordinates[1][j][1];
+            if ((x_2 == INT_MIN) && (y_2 == INT_MIN)) {
+                break;
+            }
+            if ((x_1 == x_2) && (y_1 == y_2)) {
+                intersections[found][0] = x_1;
+                intersections[found][1] = y_1;
+                found++;
+            }
+        }
+    }
+    intersections[found][0] = INT_MIN;
+    intersections[found][1] = INT_MIN;
+}
+
+int find_nearest_intersection_distance(int (*intersections)[2]) {
+    int min_distance, distance, x_intersection, y_intersection;
+
+    for (int i=0; i<512; i++) {
+        x_intersection = intersections[i][0];
+        y_intersection = intersections[i][1];
+        if ((x_intersection == INT_MIN) && (y_intersection == INT_MIN)) {
+            break;
+        }
+        distance = abs(intersections[i][0]) + abs(intersections[i][1]);
+        if ((min_distance == 0) || (distance < min_distance)) {
+            min_distance = distance;
+        }
+    }
+    return min_distance;
+}
+
+
 int main() {
     printf("Hello, world!\n");
 
     char instruction_sets[2][512][8] = {0};
-    char *instruction;
+    int coordinates[2][MAX_TRAVELLED][2] = {0};
+    int intersections[512][2];
+    int min_distance;
 
     read_instructions(instruction_sets);
 
     for (int i = 0; i<2; i++) {
-        for (int j=0; j<512; j++) {
-            instruction = instruction_sets[i][j];
-            if (instruction[0] != '\0') {
-                printf("%s,", instruction);
-            } else {
-                printf("\n");
-                break;
-            }
-        }
+        record_path_travelled(instruction_sets[i], coordinates[i]);
     }
+
+    find_intersections(coordinates, intersections);
+
+    min_distance = find_nearest_intersection_distance(intersections);
+
+    printf("Minimum distance: %d\n", min_distance);
 
     return EXIT_SUCCESS;
 }
