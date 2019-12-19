@@ -7,6 +7,12 @@ import (
 	"strings"
 )
 
+type instructionSet struct {
+	noun int
+	verb int
+	instructions []int
+}
+
 func readInput() string {
 	data, _ := ioutil.ReadFile("input.txt")
 	return string(data)
@@ -41,23 +47,63 @@ func runInstruction(instructions []int, startIndex int) (value int, isEnd bool) 
 	return
 }
 
-func runInstructions(instructions []int) []int {
+func runInstructions(instructions instructionSet) instructionSet {
 	var operationResult int
 	var isEndCode bool
 
-	for i := 0; i < len(instructions) - 4; i += 4 {
-		operationResult, isEndCode = runInstruction(instructions, i)
+	for i := 0; i < len(instructions.instructions) - 4; i += 4 {
+		operationResult, isEndCode = runInstruction(instructions.instructions, i)
 		if isEndCode {
 			break
 		}
-		instructions[instructions[i+3]] = operationResult
+		instructions.instructions[instructions.instructions[i+3]] = operationResult
 	}
 	return instructions
 }
 
-func main() {
-	var results = runInstructions(convertInstructions(readInput()))
 
-	fmt.Println(results)
-	fmt.Println(results[0])
+func amendInstructionsForRun(instructions instructionSet) instructionSet {
+	instructions.instructions[1] = instructions.noun
+	instructions.instructions[2] = instructions.verb
+	return instructions
+}
+
+func instructionSetFor(noun int, verb int, rawInput string) instructionSet {
+	return instructionSet{noun, verb, convertInstructions(rawInput)}
+}
+
+func runInstructionsFor(noun int, verb int) instructionSet {
+	return runInstructions(amendInstructionsForRun(instructionSetFor(noun, verb, readInput())))
+}
+
+func runAllInstructions(c chan instructionSet) {
+	for i := 0; i < 100; i++ {
+		for j := 0; j < 100; j++ {
+			c <- runInstructionsFor(i, j)
+		}
+	}
+	close(c)
+}
+
+func findInstructionSetWithResult(result int) instructionSet {
+	var resultInstructions instructionSet
+	c := make(chan instructionSet)
+	go runAllInstructions(c)
+	for i := range c {
+		if i.instructions[0] == result {
+			resultInstructions = i
+		}
+	}
+	return resultInstructions
+}
+
+
+func main() {
+	var part1Results = runInstructionsFor(12, 2)
+
+	var part2Results = findInstructionSetWithResult(19690720)
+	result := 100 * part2Results.noun + part2Results.verb
+
+	fmt.Println("Part 1: ", part1Results.instructions[0])
+	fmt.Printf("Part 2: %d (noun: %d, verb: %d)\n", result, part2Results.noun, part2Results.verb)
 }
