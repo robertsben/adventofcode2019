@@ -4,10 +4,6 @@ services:
   day_1:
     build: day_1
 
-  day_1_pt_2:
-    build: day_1
-    command: ["python", "pt_2_solution.py"]
-
   day_2:
     build: day_2
 

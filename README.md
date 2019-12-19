@@ -4,7 +4,7 @@ Challenges from [adventofcode.com](https://adventofcode.com/2019).
 
 ## Running
 
-    docker-compose up day_{x}(_part_{y})?
+    docker-compose up day_{x}
     
     
 ## Dev
